@@ -1,0 +1,220 @@
+﻿@page "/"
+
+<PageTitle>Worn Well - Home</PageTitle>
+
+<div class="landing-container">
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+        <div class="logo">Worn Well</div>
+        <nav class="nav-links">
+            <a href="/" class="active">Home</a>
+            <a href="/shop">Shop</a>
+            <a href="/about">About</a>
+        </nav>
+        <div class="nav-icons">
+            <!-- Search Icon -->
+            <span class="icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </span>
+            <!-- Shopping Bag Icon with Badge -->
+            <span class="icon cart-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+                <span class="badge">2</span>
+            </span>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="main-content">
+        <!-- Left Column: Branding & CTA -->
+        <section class="hero-left">
+            <div class="tagline-small">SECONDHAND & LOVED</div>
+            <h1 class="hero-title">Clothes with <em>a past.</em></h1>
+            <p class="hero-description">
+                Carefully curated thrifted pieces — each one inspected, described honestly, and priced fairly. Find your next favourite thing.
+            </p>
+
+            <div class="cta-container">
+                <button class="btn-primary" @onclick="BrowseRack">BROWSE THE RACK</button>
+                <a href="/sourcing-story" class="link-story">Our sourcing story</a>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="stats-row">
+                <div class="stat-item">
+                    <span class="stat-num">340+</span>
+                    <span class="stat-label">Items listed</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-num">₱100</span>
+                    <span class="stat-label">Avg. shipping</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-num">100%</span>
+                    <span class="stat-label">Authenticated</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Column: Image & Overlay Card -->
+        <section class="hero-right">
+            <div class="image-wrapper">
+                <img src="/images/browsing.png" alt="Thrift shopping woman" class="hero-img" />
+                
+                <div class="overlay-card">
+                    <span class="tagline-small">JUST DROPPED</span>
+                    <h3>New arrivals are in</h3>
+                    <p>40 new pieces added this week</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Shop By Category Section -->
+    <section class="category-section">
+        <div class="category-header">
+            <h2 class="section-title">Shop by <em>category</em></h2>
+            <a href="/shop" class="view-all">View all &rarr;</a>
+        </div>
+
+        <div class="category-grid">
+            <div class="category-card">
+                <img src="/images/tops.png" alt="Tops" />
+                <div class="category-overlay">
+                    <h3>Tops</h3>
+                    <p>82 pieces</p>
+                </div>
+            </div>
+
+            <div class="category-card">
+                <img src="/images/bottoms.png" alt="Bottoms" />
+                <div class="category-overlay">
+                    <h3>Bottoms</h3>
+                    <p>64 pieces</p>
+                </div>
+            </div>
+
+            <div class="category-card">
+                <img src="/images/dresses.png" alt="Dresses" />
+                <div class="category-overlay">
+                    <h3>Dresses</h3>
+                    <p>48 pieces</p>
+                </div>
+            </div>
+
+            <div class="category-card">
+                <img src="/images/outerwear.png" alt="Outerwear" />
+                <div class="category-overlay">
+                    <h3>Outerwear</h3>
+                    <p>72 pieces</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- This Week's Favourites Section -->
+    <section class="favourites-section">
+        <div class="favourites-header">
+            <div class="favourites-title-group">
+                <span class="tagline-small">HANDPICKED</span>
+                <h2 class="section-title">This week's <em>favourites</em></h2>
+            </div>
+            <a href="/shop" class="view-all">See all new arrivals &rarr;</a>
+        </div>
+
+        <div class="favourites-grid">
+            <!-- Item 1 -->
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <span class="condition-badge">Excellent</span>
+                    <img src="/images/bottoms.png" alt="Levi's 501 Straight Leg" />
+                </div>
+                <div class="product-meta">
+                    <span class="product-category">BOTTOMS &bull; W30 L32</span>
+                    <h3 class="product-name">Levi's 501 Straight Leg</h3>
+                    <div class="product-pricing">
+                        <span class="current-price">&#8369;150</span>
+                        <span class="original-price">&#8369;300</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Item 2 -->
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <span class="condition-badge">Good</span>
+                    <img src="/images/jacket.png" alt="Oversized Linen Blazer" />
+                </div>
+                <div class="product-meta">
+                    <span class="product-category">OUTERWEAR &bull; M / L</span>
+                    <h3 class="product-name">Oversized Linen Blazer</h3>
+                    <div class="product-pricing">
+                        <span class="current-price">&#8369;250</span>
+                        <span class="original-price">&#8369;500</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Item 3 -->
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <span class="condition-badge">Excellent</span>
+                    <img src="/images/dresses.png" alt="Floral Wrap Midi Dress" />
+                </div>
+                <div class="product-meta">
+                    <span class="product-category">DRESSES &bull; S</span>
+                    <h3 class="product-name">Floral Wrap Midi Dress</h3>
+                    <div class="product-pricing">
+                        <span class="current-price">&#8369;450</span>
+                        <span class="original-price">&#8369;900</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Footer Section -->
+    <footer class="footer-section">
+        <div class="footer-content-grid">
+            <!-- Left: Rack Image -->
+            <div class="footer-image-pane">
+                <img src="/images/clothes.png" alt="Thrift clothing rack" />
+            </div>
+
+            <!-- Right: Dark Info Panel -->
+            <div class="footer-text-pane">
+                <span class="tagline-small">WHY THRIFT?</span>
+                <h2 class="footer-headline">Every piece has <em>a story.</em></h2>
+                <p class="footer-body">
+                    Fast fashion is expensive — for you and for the planet. We believe in buying less and buying better. Each piece we list has been worn, loved, and is ready for a second chapter.
+                </p>
+                <p class="footer-body">
+                    We inspect every item for quality, describe flaws honestly, and photograph everything ourselves. No surprises, ever.
+                </p>
+            </div>
+        </div>
+
+        <!-- Bottom Copyright Bar -->
+        <div class="footer-bottom">
+            <div class="footer-brand">Worn Well</div>
+            <div class="footer-copyright">&copy; 2026 &bull; Sustainably sourced, honestly described</div>
+            <div class="footer-links">
+                <a href="/instagram" target="_blank">Instagram</a>
+                <a href="/faq">FAQ</a>
+            </div>
+        </div>
+    </footer>
+</div>
+
+@code {
+    private void BrowseRack()
+    {
+        Console.WriteLine("Browse the rack clicked!");
+    }
+}
