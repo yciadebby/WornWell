@@ -251,9 +251,9 @@
 
 @code {
 
-    private ReviewModel review = new();
+    private Review review = new();
 
-    private List<ReviewModel> reviews = new();
+    private List<Review> reviews = new();
 
     private bool showSuccess = false;
 
@@ -277,7 +277,7 @@
             return;
 
 
-        reviews.Insert(0, new ReviewModel
+        reviews.Insert(0, new Review
         {
             Name = review.Name,
             Rating = review.Rating,
@@ -289,19 +289,7 @@
         showSuccess = true;
 
 
-        review = new ReviewModel();
+        review = new Review();
     }
-
-
-    public class ReviewModel
-    {
-        public string Name { get; set; } = "";
-
-        public int Rating { get; set; }
-
-        public string Comment { get; set; } = "";
-
-        public DateTime Date { get; set; } = DateTime.Now;
-    }
-
 }
+
