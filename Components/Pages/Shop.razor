@@ -1,4 +1,8 @@
 @page "/shop"
+@rendermode InteractiveServer
+@inject Supabase.Client Db
+@using static Supabase.Postgrest.Constants
+@using WornWell.Models
 
 <div class="min-h-screen flex flex-col w-full bg-[#f5f3ef] text-[#1A1A1A] font-sans selection:bg-[#A35C46] selection:text-white">
     
@@ -46,11 +50,12 @@
                 <div class="flex items-center gap-4">
                     <span class="font-bold tracking-[0.15em] uppercase text-[#888]">Category</span>
                     <div class="flex flex-wrap gap-2">
-                        <button class="bg-[#1A1A1A] text-white px-4 py-1.5 border border-[#1A1A1A]">All</button>
-                        <button class="bg-transparent text-[#1A1A1A] px-4 py-1.5 border border-black/15 hover:border-black/40 transition-colors">Outerwear</button>
-                        <button class="bg-transparent text-[#1A1A1A] px-4 py-1.5 border border-black/15 hover:border-black/40 transition-colors">Tops</button>
-                        <button class="bg-transparent text-[#1A1A1A] px-4 py-1.5 border border-black/15 hover:border-black/40 transition-colors">Bottoms</button>
-                        <button class="bg-transparent text-[#1A1A1A] px-4 py-1.5 border border-black/15 hover:border-black/40 transition-colors">Dresses</button>
+                        @foreach (var cat in categories)
+                        {
+                            <button @onclick="() => selectedCategory = cat" class="@GetButtonClass(selectedCategory == cat)">
+                                @cat
+                            </button>
+                        }
                     </div>
                 </div>
 
@@ -58,173 +63,197 @@
                 <div class="flex items-center gap-4">
                     <span class="font-bold tracking-[0.15em] uppercase text-[#888]">Condition</span>
                     <div class="flex flex-wrap gap-2">
-                        <button class="bg-[#1A1A1A] text-white px-4 py-1.5 border border-[#1A1A1A]">All</button>
-                        <button class="bg-transparent text-[#1A1A1A] px-4 py-1.5 border border-black/15 hover:border-black/40 transition-colors">Excellent</button>
-                        <button class="bg-transparent text-[#1A1A1A] px-4 py-1.5 border border-black/15 hover:border-black/40 transition-colors">Good</button>
-                        <button class="bg-transparent text-[#1A1A1A] px-4 py-1.5 border border-black/15 hover:border-black/40 transition-colors">Fair</button>
+                        @foreach (var cond in conditions)
+                        {
+                            <button @onclick="() => selectedCondition = cond" class="@GetButtonClass(selectedCondition == cond)">
+                                @cond
+                            </button>
+                        }
                     </div>
                 </div>
 
             </div>
-            <span class="text-[#888] font-medium tracking-wide">8 items</span>
+            <span class="text-[#888] font-medium tracking-wide">@FilteredItems.Count @(FilteredItems.Count == 1 ? "item" : "items")</span>
         </div>
 
+        <!-- Add New Thrift Item Form -->
+        <div class="border-b border-black/10 py-5 flex flex-wrap items-center gap-3 text-[0.75rem]">
+            <span class="font-bold tracking-[0.15em] uppercase text-[0.65rem] text-[#888] mr-2">Add Piece</span>
+
+            <input @bind="newTitle"
+                   placeholder="Item title (e.g. Vintage Denim Jacket)"
+                   class="bg-white/70 border border-black/15 px-3 py-1.5 text-[#1A1A1A] placeholder:text-[#888] focus:outline-none focus:border-[#1A1A1A] min-w-[210px]" />
+
+            <select @bind="newCategory"
+                    class="bg-white/70 border border-black/15 px-3 py-1.5 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A]">
+                <option value="Outerwear">Outerwear</option>
+                <option value="Tops">Tops</option>
+                <option value="Bottoms">Bottoms</option>
+                <option value="Dresses">Dresses</option>
+            </select>
+
+            <input @bind="newSizeLabel"
+                   placeholder="Size (e.g. Size M)"
+                   class="w-28 bg-white/70 border border-black/15 px-3 py-1.5 text-[#1A1A1A] placeholder:text-[#888] focus:outline-none focus:border-[#1A1A1A]" />
+
+            <select @bind="newCondition"
+                    class="bg-white/70 border border-black/15 px-3 py-1.5 text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A]">
+                <option value="Excellent">Excellent</option>
+                <option value="Good">Good</option>
+                <option value="Fair">Fair</option>
+            </select>
+
+            <input @bind="newPrice"
+                   type="number"
+                   placeholder="Price"
+                   class="w-28 bg-white/70 border border-black/15 px-3 py-1.5 text-[#1A1A1A] placeholder:text-[#888] focus:outline-none focus:border-[#1A1A1A]" />
+
+            <button @onclick="Add"
+                    disabled="@saving"
+                    class="bg-[#A35C46] text-white px-5 py-1.5 font-medium tracking-wide hover:bg-[#8c4c38] transition-colors disabled:opacity-50">
+                @(saving ? "Adding..." : "Add")
+            </button>
+        </div>
+        
         <!-- Product Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12 mt-10">
-            
-            <!-- Item 1 -->
-            <div class="flex flex-col group cursor-pointer">
-                <!-- Image Placeholder -->
-                <div class="relative aspect-[4/5] mb-4 bg-[#e8e4de] border border-black/5">
-                    <span class="absolute top-3 left-3 bg-[#f5f3ef]/90 text-[#A35C46] border border-[#A35C46]/30 text-[0.55rem] font-bold tracking-widest px-2 py-0.5 z-10 uppercase">
-                        Good
-                    </span>
-                </div>
-                <div class="flex justify-between items-start">
-                    <div class="flex flex-col">
-                        <h3 class="text-[0.85rem] font-serif font-bold text-[#1A1A1A] mb-1">Leather Moto Jacket</h3>
-                        <div class="text-[0.65rem] text-[#888] flex gap-2">
-                            <span>Outerwear</span>
-                            <span>Size M</span>
+        @if (isLoading)
+        {
+            <div class="py-20 text-center text-sm text-[#888]">Loading rack...</div>
+        }
+        else if (FilteredItems.Count == 0)
+        {
+            <div class="py-20 text-center text-sm text-[#888]">No pieces match your current filters.</div>
+        }
+        else
+        {
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12 mt-10">
+                @foreach (var item in FilteredItems)
+                {
+                    <div class="flex flex-col group">
+                        <!-- Image Container -->
+                        <div class="relative aspect-[4/5] mb-4 bg-[#e8e4de] border border-black/5 overflow-hidden">
+                            <span class="absolute top-3 left-3 bg-[#f5f3ef]/90 text-[#A35C46] border border-[#A35C46]/30 text-[0.55rem] font-bold tracking-widest px-2 py-0.5 z-10 uppercase">
+                                @item.Condition
+                            </span>
+                            @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+                            {
+                                <img src="@item.ImageUrl" alt="@item.Title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                            }
+                        </div>
+
+                        <div class="flex justify-between items-start">
+                            <div class="flex flex-col">
+                                <h3 class="text-[0.85rem] font-serif font-bold text-[#1A1A1A] mb-1">@item.Title</h3>
+                                <div class="text-[0.65rem] text-[#888] flex gap-2">
+                                    <span class="capitalize">@item.Category.ToLower()</span>
+                                    <span>&bull;</span>
+                                    <span>@item.SizeLabel</span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-end">
+                                <span class="font-serif font-bold text-[0.85rem] text-[#1A1A1A]">@($"P{item.Price:N0}")</span>
+                                @if (item.OriginalPrice.HasValue && item.OriginalPrice > item.Price)
+                                {
+                                    <span class="text-[0.65rem] text-[#888] line-through">@($"P{item.OriginalPrice.Value:N0}")</span>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Step 8: Update & Soft Delete Actions -->
+                        <div class="flex gap-2 mt-3 pt-2.5 border-t border-black/10 text-[0.65rem]">
+                            <button @onclick="() => Raise(item)"
+                                    class="px-2.5 py-1 border border-black/15 text-[#1A1A1A] hover:border-[#1A1A1A] transition-colors">
+                                +10
+                            </button>
+                            <button @onclick="() => Remove(item)"
+                                    class="px-2.5 py-1 border border-[#A35C46]/40 text-[#A35C46] hover:bg-[#A35C46] hover:text-white transition-colors ml-auto">
+                                Delete
+                            </button>
                         </div>
                     </div>
-                    <span class="font-serif font-bold text-[0.85rem] text-[#1A1A1A]">P1,200</span>
-                </div>
+                }
             </div>
-
-            <!-- Item 2 -->
-            <div class="flex flex-col group cursor-pointer">
-                <div class="relative aspect-[4/5] mb-4 bg-[#e8e4de] border border-black/5">
-                    <span class="absolute top-3 left-3 bg-[#f5f3ef]/90 text-[#A35C46] border border-[#A35C46]/30 text-[0.55rem] font-bold tracking-widest px-2 py-0.5 z-10 uppercase">
-                        Excellent
-                    </span>
-                </div>
-                <div class="flex justify-between items-start">
-                    <div class="flex flex-col">
-                        <h3 class="text-[0.85rem] font-serif font-bold text-[#1A1A1A] mb-1">Denim Trucker Jacket</h3>
-                        <div class="text-[0.65rem] text-[#888] flex gap-2">
-                            <span>Outerwear</span>
-                            <span>Size L</span>
-                        </div>
-                    </div>
-                    <span class="font-serif font-bold text-[0.85rem] text-[#1A1A1A]">P850</span>
-                </div>
-            </div>
-
-            <!-- Item 3 -->
-            <div class="flex flex-col group cursor-pointer">
-                <div class="relative aspect-[4/5] mb-4 bg-[#e8e4de] border border-black/5">
-                    <span class="absolute top-3 left-3 bg-[#f5f3ef]/90 text-[#A35C46] border border-[#A35C46]/30 text-[0.55rem] font-bold tracking-widest px-2 py-0.5 z-10 uppercase">
-                        Good
-                    </span>
-                </div>
-                <div class="flex justify-between items-start">
-                    <div class="flex flex-col">
-                        <h3 class="text-[0.85rem] font-serif font-bold text-[#1A1A1A] mb-1">Vintage Varsity Jacket</h3>
-                        <div class="text-[0.65rem] text-[#888] flex gap-2">
-                            <span>Outerwear</span>
-                            <span>Size S</span>
-                        </div>
-                    </div>
-                    <span class="font-serif font-bold text-[0.85rem] text-[#1A1A1A]">P1,500</span>
-                </div>
-            </div>
-
-            <!-- Item 4 -->
-            <div class="flex flex-col group cursor-pointer">
-                <div class="relative aspect-[4/5] mb-4 bg-[#e8e4de] border border-black/5">
-                    <span class="absolute top-3 left-3 bg-[#f5f3ef]/90 text-[#A35C46] border border-[#A35C46]/30 text-[0.55rem] font-bold tracking-widest px-2 py-0.5 z-10 uppercase">
-                        Excellent
-                    </span>
-                </div>
-                <div class="flex justify-between items-start">
-                    <div class="flex flex-col">
-                        <h3 class="text-[0.85rem] font-serif font-bold text-[#1A1A1A] mb-1">Floral Midi Dress</h3>
-                        <div class="text-[0.65rem] text-[#888] flex gap-2">
-                            <span>Dresses</span>
-                            <span>Size S</span>
-                        </div>
-                    </div>
-                    <span class="font-serif font-bold text-[0.85rem] text-[#1A1A1A]">P620</span>
-                </div>
-            </div>
-
-            <!-- Item 5 -->
-            <div class="flex flex-col group cursor-pointer">
-                <div class="relative aspect-[4/5] mb-4 bg-[#e8e4de] border border-black/5">
-                    <span class="absolute top-3 left-3 bg-[#f5f3ef]/90 text-[#A35C46] border border-[#A35C46]/30 text-[0.55rem] font-bold tracking-widest px-2 py-0.5 z-10 uppercase">
-                        Good
-                    </span>
-                </div>
-                <div class="flex justify-between items-start">
-                    <div class="flex flex-col">
-                        <h3 class="text-[0.85rem] font-serif font-bold text-[#1A1A1A] mb-1">Washed Linen Shirt</h3>
-                        <div class="text-[0.65rem] text-[#888] flex gap-2">
-                            <span>Tops</span>
-                            <span>Size M</span>
-                        </div>
-                    </div>
-                    <span class="font-serif font-bold text-[0.85rem] text-[#1A1A1A]">P380</span>
-                </div>
-            </div>
-
-            <!-- Item 6 -->
-            <div class="flex flex-col group cursor-pointer">
-                <div class="relative aspect-[4/5] mb-4 bg-[#e8e4de] border border-black/5">
-                    <span class="absolute top-3 left-3 bg-[#f5f3ef]/90 text-[#A35C46] border border-[#A35C46]/30 text-[0.55rem] font-bold tracking-widest px-2 py-0.5 z-10 uppercase">
-                        Good
-                    </span>
-                </div>
-                <div class="flex justify-between items-start">
-                    <div class="flex flex-col">
-                        <h3 class="text-[0.85rem] font-serif font-bold text-[#1A1A1A] mb-1">High-Rise Mom Jeans</h3>
-                        <div class="text-[0.65rem] text-[#888] flex gap-2">
-                            <span>Bottoms</span>
-                            <span>Size 28</span>
-                        </div>
-                    </div>
-                    <span class="font-serif font-bold text-[0.85rem] text-[#1A1A1A]">P540</span>
-                </div>
-            </div>
-
-            <!-- Item 7 -->
-            <div class="flex flex-col group cursor-pointer">
-                <div class="relative aspect-[4/5] mb-4 bg-[#e8e4de] border border-black/5">
-                    <span class="absolute top-3 left-3 bg-[#f5f3ef]/90 text-[#A35C46] border border-[#A35C46]/30 text-[0.55rem] font-bold tracking-widest px-2 py-0.5 z-10 uppercase">
-                        Excellent
-                    </span>
-                </div>
-                <div class="flex justify-between items-start">
-                    <div class="flex flex-col">
-                        <h3 class="text-[0.85rem] font-serif font-bold text-[#1A1A1A] mb-1">Stripe Knit Pullover</h3>
-                        <div class="text-[0.65rem] text-[#888] flex gap-2">
-                            <span>Tops</span>
-                            <span>Size L</span>
-                        </div>
-                    </div>
-                    <span class="font-serif font-bold text-[0.85rem] text-[#1A1A1A]">P460</span>
-                </div>
-            </div>
-
-            <!-- Item 8 -->
-            <div class="flex flex-col group cursor-pointer">
-                <div class="relative aspect-[4/5] mb-4 bg-[#e8e4de] border border-black/5">
-                    <span class="absolute top-3 left-3 bg-[#f5f3ef]/90 text-[#A35C46] border border-[#A35C46]/30 text-[0.55rem] font-bold tracking-widest px-2 py-0.5 z-10 uppercase">
-                        Fair
-                    </span>
-                </div>
-                <div class="flex justify-between items-start">
-                    <div class="flex flex-col">
-                        <h3 class="text-[0.85rem] font-serif font-bold text-[#1A1A1A] mb-1">Corduroy Blazer</h3>
-                        <div class="text-[0.65rem] text-[#888] flex gap-2">
-                            <span>Outerwear</span>
-                            <span>Size M</span>
-                        </div>
-                    </div>
-                    <span class="font-serif font-bold text-[0.85rem] text-[#1A1A1A]">P720</span>
-                </div>
-            </div>
-
-        </div>
+        }
     </main>
 </div>
+
+@code {
+    private List<ThriftItem> items = new();
+    private bool isLoading = true;
+
+    private string newTitle = "";
+    private string newCategory = "Outerwear";
+    private string newSizeLabel = "";
+    private string newCondition = "Good";
+    private decimal newPrice;
+    private bool saving;
+
+    private readonly string[] categories = ["All", "Outerwear", "Tops", "Bottoms", "Dresses"];
+    private readonly string[] conditions = ["All", "Excellent", "Good", "Fair"];
+
+    private string selectedCategory = "All";
+    private string selectedCondition = "All";
+
+    private List<ThriftItem> FilteredItems => items
+        .Where(x => selectedCategory == "All" || x.Category.Equals(selectedCategory, StringComparison.OrdinalIgnoreCase))
+        .Where(x => selectedCondition == "All" || x.Condition.Equals(selectedCondition, StringComparison.OrdinalIgnoreCase))
+        .ToList();
+
+    protected override async Task OnInitializedAsync()
+        => await Load();
+
+    private async Task Load()
+    {
+        var res = await Db.From<ThriftItem>()
+            .Where(x => x.DeletedAt == null)
+            .Order(x => x.Id, Ordering.Ascending)
+            .Range(0, 49)
+            .Get();
+
+        items = res.Models;
+        isLoading = false;
+    }
+
+    private async Task Add()
+    {
+        if (string.IsNullOrWhiteSpace(newTitle) || string.IsNullOrWhiteSpace(newSizeLabel)) return;
+
+        saving = true;
+        await Db.From<ThriftItem>().Insert(new ThriftItem
+        {
+            Title = newTitle,
+            Category = newCategory,
+            SizeLabel = newSizeLabel,
+            Condition = newCondition,
+            Price = newPrice
+        });
+
+        newTitle = "";
+        newSizeLabel = "";
+        newPrice = 0;
+        saving = false;
+        await Load();
+    }
+
+    private async Task Raise(ThriftItem item)      // sends PATCH
+    {
+        await Db.From<ThriftItem>()
+            .Where(x => x.Id == item.Id)
+            .Set(x => x.Price, item.Price + 10)
+            .Update();
+        await Load();
+    }
+
+    private async Task Remove(ThriftItem item)     // soft delete
+    {
+        await Db.From<ThriftItem>()
+            .Where(x => x.Id == item.Id)
+            .Set(x => x.DeletedAt, DateTime.UtcNow)
+            .Update();
+        await Load();
+    }
+
+    private static string GetButtonClass(bool isActive) => isActive
+        ? "bg-[#1A1A1A] text-white px-4 py-1.5 border border-[#1A1A1A] transition-colors"
+        : "bg-transparent text-[#1A1A1A] px-4 py-1.5 border border-black/15 hover:border-black/40 transition-colors";
+}
